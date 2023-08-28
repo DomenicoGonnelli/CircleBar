@@ -52,7 +52,7 @@ import UIKit
             let bezPathFrom = drawPath(for: previousIndex)
             bezAnimation.toValue = bezPath.cgPath
             bezAnimation.fromValue = bezPathFrom.cgPath
-            bezAnimation.duration = 0.3
+            bezAnimation.duration = 0.01
             bezAnimation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             mask.add(bezAnimation, forKey: nil)
         }

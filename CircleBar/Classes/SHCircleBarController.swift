@@ -36,6 +36,11 @@ open class SHCircleBarController: UITabBarController {
             guard let tabBar = tabBar as? SHCircleBar else {
                 return
             }
+            
+            if let item = tabB.items?[newValue] {
+                tabBar(tabB, didSelect: item)
+            }
+            
             tabBar.select(itemAt: newValue, animated: true)
         }
     }
