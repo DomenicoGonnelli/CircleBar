@@ -9,8 +9,8 @@
 import UIKit
 
 @IBDesignable class SHCircleBar: UITabBar {
-    private var tabWidth: CGFloat = 0
-    private var index: CGFloat = 0 {
+    var tabWidth: CGFloat = 0
+    var index: CGFloat = 0 {
         willSet{
             self.previousIndex = index
         }
@@ -18,35 +18,25 @@ import UIKit
     private var animated = false
     private var selectedImage: UIImage?
     private var previousIndex: CGFloat = 0
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         customInit()
     }
     
-    public required init?(coder aDecoder: NSCoder) {
+    @IBInspectable var backgroundTintColor: UIColor?{
+        didSet{
+            let color = backgroundTintColor ?? .white
+            //customInit(color)
+        }
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         customInit()
         
     }
-    
-    open override func draw(_ rect: CGRect) {
-        drawCurve()
-    }
-}
-
-extension SHCircleBar {
-    
-    func select(itemAt: Int, animated: Bool) {
-        self.index = CGFloat(itemAt)
-        self.animated = animated
-        self.selectedImage = self.selectedItem?.selectedImage
-        self.selectedItem?.selectedImage = nil
-        self.setNeedsDisplay()
-    }
-    
-    private func drawCurve() {
-        let fillColor: UIColor = .white
+    override func draw(_ rect: CGRect) {
+        let fillColor: UIColor = backgroundTintColor ?? .white
         tabWidth = self.bounds.width / CGFloat(self.items!.count)
         let bezPath = drawPath(for: index)
         
@@ -55,57 +45,50 @@ extension SHCircleBar {
         bezPath.fill()
         let mask = CAShapeLayer()
         mask.fillRule = .evenOdd
-        mask.fillColor = UIColor.white.cgColor
+        mask.fillColor = fillColor.cgColor
         mask.path = bezPath.cgPath
         if (self.animated) {
             let bezAnimation = CABasicAnimation(keyPath: "path")
             let bezPathFrom = drawPath(for: previousIndex)
             bezAnimation.toValue = bezPath.cgPath
             bezAnimation.fromValue = bezPathFrom.cgPath
-            bezAnimation.duration = 0.3
+            bezAnimation.duration = 0.01
             bezAnimation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             mask.add(bezAnimation, forKey: nil)
         }
+        
         self.layer.mask = mask
     }
     
-    private func customInit(){
-        self.tintColor = .white
-        self.barTintColor = .white
-        self.backgroundColor = .white
+    func select(itemAt: Int, animated: Bool) {
+        self.index = CGFloat(itemAt)
+        self.animated = animated
+        self.selectedImage = self.selectedItem?.selectedImage
+        self.setNeedsDisplay()
     }
     
+    open func customInit(_ color: UIColor = .white, _ unselectedColor: UIColor = .white){
+        self.tintColor = color
+        self.barTintColor = color
+        self.backgroundColor = color
+        self.unselectedItemTintColor = unselectedColor
+    }
     private func drawPath(for index: CGFloat) -> UIBezierPath {
         let bezPath = UIBezierPath()
-        
-        let tabHeight: CGFloat = tabWidth
-        
-        let leftPoint = CGPoint(x: (index * tabWidth), y: 0)
-        let leftPointCurveUp = CGPoint(
-            x: ((tabWidth * index) + tabWidth / 5),
-            y: 0)
-        let leftPointCurveDown = CGPoint(
-            x: ((index * tabWidth) - tabWidth*0.2) + tabWidth / 4,
-            y: tabHeight*0.40)
-        
-        let middlePoint = CGPoint(
-            x: (tabWidth * index) + tabWidth / 2,
-            y: tabHeight*0.4)
-        let middlePointCurveDown = CGPoint(
-            x: (((index * tabWidth) - tabWidth*0.2) + tabWidth / 10) + tabWidth,
-            y: tabHeight*0.40)
-        let middlePointCurveUp = CGPoint(
-            x: (((tabWidth * index) + tabWidth) - tabWidth / 5),
-            y: 0)
-        
-        let rightPoint = CGPoint(x: (tabWidth * index) + tabWidth, y: 0)
-        bezPath.move(to: leftPoint)
-        bezPath.addCurve(to: middlePoint, controlPoint1: leftPointCurveUp, controlPoint2: leftPointCurveDown)
-        bezPath.addCurve(to: rightPoint, controlPoint1: middlePointCurveDown, controlPoint2: middlePointCurveUp)
-        
+
+        let firstPoint = CGPoint(x: (index * tabWidth) - 25, y: 0)
+        let firstPointFirstCurve = CGPoint(x: ((tabWidth * index) + tabWidth / 4), y: 0)
+        let firstPointSecondCurve = CGPoint(x: ((index * tabWidth) - 25) + tabWidth / 8, y: 52)
+
+        let middlePoint = CGPoint(x: (tabWidth * index) + tabWidth / 2, y: 55)
+        let middlePointFirstCurve = CGPoint(x: (((tabWidth * index) + tabWidth) - tabWidth / 8) + 25, y: 52)
+        let middlePointSecondCurve = CGPoint(x: (((tabWidth * index) + tabWidth) - tabWidth / 4), y: 0)
+
+        let lastPoint = CGPoint(x: (tabWidth * index) + tabWidth + 25, y: 0)
+        bezPath.move(to: firstPoint)
+        bezPath.addCurve(to: middlePoint, controlPoint1: firstPointFirstCurve, controlPoint2: firstPointSecondCurve)
+        bezPath.addCurve(to: lastPoint, controlPoint1: middlePointFirstCurve, controlPoint2: middlePointSecondCurve)
         bezPath.append(UIBezierPath(rect: self.bounds))
-        
         return bezPath
     }
 }
-
