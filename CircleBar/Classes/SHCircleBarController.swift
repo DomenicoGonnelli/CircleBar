@@ -33,7 +33,7 @@ open class SHCircleBarController: UITabBarController {
                 shouldSelectOnTabBar = true
                 return
             }
-            guard let tabBar = tabBar as? SHCircleBar else {
+            guard let tabB = tabBar as? SHCircleBar else {
                 return
             }
             
@@ -41,7 +41,7 @@ open class SHCircleBarController: UITabBarController {
                 tabBar(tabB, didSelect: item)
             }
             
-            tabBar.select(itemAt: newValue, animated: true)
+            tabB.select(itemAt: newValue, animated: true)
         }
     }
     
